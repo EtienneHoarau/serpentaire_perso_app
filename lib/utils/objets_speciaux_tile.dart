@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
-class SaveTile extends StatelessWidget {
+class ObjetsSpeciauxTile extends StatelessWidget {
   final String name;
   final VoidCallback onTap;
   final Function(BuildContext)? deleteFunction;
 
-  const SaveTile({
+  const ObjetsSpeciauxTile({
     super.key,
     required this.name,
     required this.onTap,
@@ -30,16 +30,24 @@ class SaveTile extends StatelessWidget {
             ),
           ],
         ),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: ListTile(
-            title: Text(name),
-            onTap: onTap,
-          ),
+        child: Row(
+          children: [
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: Colors.green[700],
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(Icons.star, color: Colors.white),
+            ),
+            const SizedBox(width: 20),
+            Text(
+              name,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            
+          ],
         ),
       ),
     );

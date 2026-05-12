@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../data/database.dart';
-import 'package:serpentaire_perso_app/pages/save_tile.dart';
+import 'package:serpentaire_perso_app/utils/save_tile.dart';
 
 class HomePage extends StatefulWidget {
   final SavesDatabase db;
@@ -19,7 +19,6 @@ class _HomePageState extends State<HomePage> {
     db = widget.db; // initialisé ici
   }
 
-
   void deleteSave(int index) {
     setState(() {
       db.mySaves.removeAt(index);
@@ -33,6 +32,8 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
+        automaticallyImplyLeading: false,
+
         backgroundColor: Colors.green[700],
         title: Text('Serpentaire Perso App'),
       ),
@@ -44,18 +45,30 @@ class _HomePageState extends State<HomePage> {
       ),
       body: Column(
         children: [
-          Text("Bienvenue dans l'application de gestion de personnage pour Serpentaire!"),
-          Text("Choisissez une sauvegarde pour commencer à gérer votre personnage."),
+          Text(
+            "Bienvenue dans l'application de gestion de personnage pour Serpentaire!",
+          ),
+          Text(
+            "Choisissez une sauvegarde pour commencer à gérer votre personnage.",
+          ),
           Expanded(
             child: ListView.builder(
               itemCount: db.mySaves.length,
               itemBuilder: (context, index) {
                 return SaveTile(
                   name: db.mySaves[index].name,
+                  isFavorite: db.mySaves[index].isFavorite,
                   onTap: () {
-                    Navigator.pushNamed(context, '/save', arguments: db.mySaves[index].id);
+                    Navigator.pushNamed(
+                      context,
+                      '/save',
+                      arguments: db.mySaves[index].id,
+                    );
                   },
                   deleteFunction: (context) => deleteSave(index),
+                  changeFavorite: (context) => {setState(() {
+                    db.setFavorite(db.mySaves[index]);
+                  })},
                 );
               },
             ),
