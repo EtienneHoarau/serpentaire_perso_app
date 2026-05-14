@@ -5,6 +5,7 @@ import '../data/database.dart';
 import 'dart:math';
 import '../utils/objets_communs_tile.dart';
 import '../utils/objets_speciaux_tile.dart';
+import '../utils/herbe_tile.dart';
 
 class SavePage extends StatefulWidget {
   final SavesDatabase db;
@@ -734,10 +735,92 @@ class _SavePageState extends State<SavePage> {
     }
   }
 
+  void _editerHerbe(String nom, int quantite) {
+    final controller = TextEditingController(text: quantite.toString());
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Modifier $nom'),
+        content: TextField(
+          controller: controller,
+          keyboardType: TextInputType.number,
+          autofocus: true,
+          decoration: const InputDecoration(
+            labelText: 'Quantité',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Annuler'),
+          ),
+          TextButton(
+            onPressed: () {
+              final nouvelleQuantite =
+                  int.tryParse(controller.text) ?? quantite;
+              setState(() {
+                if (nouvelleQuantite <= 0) {
+                  save.pocheAHerbe.removeHerbe(nom);
+                } else {
+                  save.pocheAHerbe.updateQuantite(nom, nouvelleQuantite);
+                }
+              });
+              widget.db.updateData();
+              Navigator.pop(context);
+            },
+            child: const Text('Valider'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _editerFiole(String nom, int quantite) {
+    final controller = TextEditingController(text: quantite.toString());
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Modifier $nom'),
+        content: TextField(
+          controller: controller,
+          keyboardType: TextInputType.number,
+          autofocus: true,
+          decoration: const InputDecoration(
+            labelText: 'Quantité',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Annuler'),
+          ),
+          TextButton(
+            onPressed: () {
+              final nouvelleQuantite =
+                  int.tryParse(controller.text) ?? quantite;
+              setState(() {
+                if (nouvelleQuantite <= 0) {
+                  save.fioles.removeFiole(nom);
+                } else {
+                  save.fioles.updateQuantite(nom, nouvelleQuantite);
+                }
+              });
+              widget.db.updateData();
+              Navigator.pop(context);
+            },
+            child: const Text('Valider'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 4,
+      length: 5,
       child: Scaffold(
         floatingActionButtonLocation: ExpandableFab.location,
         floatingActionButton: ExpandableFab(
@@ -854,6 +937,7 @@ class _SavePageState extends State<SavePage> {
               Tab(text: "Talents"),
               Tab(text: "Besace"),
               Tab(text: "Poches"),
+              Tab(text: "Alchimie"),
             ],
           ),
         ),
@@ -1183,6 +1267,210 @@ class _SavePageState extends State<SavePage> {
                     },
                     icon: const Icon(Icons.add),
                     label: const Text('Ajouter un objet'),
+                  ),
+                ],
+              ),
+            ),
+
+            //Alchimie
+            SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 16),
+                  Text(
+                    "Poches à Herbes (${save.pocheAHerbe.getTotalQuantity()}/${save.pocheAHerbe.capaciteMax})",
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  save.pocheAHerbe.herbes.isEmpty
+                      ? const Text("Aucune herbe")
+                      : Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: save.pocheAHerbe.herbes.map((herbe) {
+                            final nom = herbe.keys.first;
+                            final quantite = herbe.values.first;
+                            return HerbeTile(
+                              name: nom,
+                              quantite: quantite,
+                              onTap: () => _editerHerbe(nom, quantite),
+                            );
+                          }).toList(),
+                        ),
+                  const SizedBox(height: 8),
+                  TextButton.icon(
+                    onPressed:
+                        save.pocheAHerbe.getTotalQuantity() <
+                            save.pocheAHerbe.capaciteMax
+                        ? () {
+                            final nomController = TextEditingController();
+                            final quantiteController = TextEditingController(
+                              text: '1',
+                            );
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('Ajouter une herbe'),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    TextField(
+                                      controller: nomController,
+                                      decoration: const InputDecoration(
+                                        labelText: 'Nom',
+                                        border: OutlineInputBorder(),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    TextField(
+                                      controller: quantiteController,
+                                      keyboardType: TextInputType.number,
+                                      decoration: const InputDecoration(
+                                        labelText: 'Quantité',
+                                        border: OutlineInputBorder(),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('Annuler'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      final nom = nomController.text.trim();
+                                      final quantite =
+                                          int.tryParse(
+                                            quantiteController.text,
+                                          ) ??
+                                          1;
+                                      if (nom.isNotEmpty) {
+                                        setState(
+                                          () => save.pocheAHerbe.addHerbe(
+                                            nom,
+                                            quantite,
+                                          ),
+                                        );
+                                        widget.db.updateData();
+                                      }
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text('Ajouter'),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
+                        : null,
+                    icon: const Icon(Icons.add),
+                    label: Text(
+                      save.pocheAHerbe.getTotalQuantity() <
+                              save.pocheAHerbe.capaciteMax
+                          ? 'Ajouter une herbe'
+                          : 'Poche pleine',
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    "Fioles (${save.fioles.getTotalQuantity()}/${save.fioles.capaciteMax})",
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  save.fioles.fioles.isEmpty
+                      ? const Text("Aucune fiole")
+                      : Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: save.fioles.fioles.map((fiole) {
+                            final nom = fiole.keys.first;
+                            final quantite = fiole.values.first;
+                            return HerbeTile(
+                              name: nom,
+                              quantite: quantite,
+                              onTap: () => _editerFiole(nom, quantite),
+                            );
+                          }).toList(),
+                        ),
+                  const SizedBox(height: 8),
+                  TextButton.icon(
+                    onPressed:
+                        save.fioles.getTotalQuantity() < save.fioles.capaciteMax
+                        ? () {
+                            final nomController = TextEditingController();
+                            final quantiteController = TextEditingController(
+                              text: '1',
+                            );
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('Ajouter une fiole'),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    TextField(
+                                      controller: nomController,
+                                      decoration: const InputDecoration(
+                                        labelText: 'Nom',
+                                        border: OutlineInputBorder(),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    TextField(
+                                      controller: quantiteController,
+                                      keyboardType: TextInputType.number,
+                                      decoration: const InputDecoration(
+                                        labelText: 'Quantité',
+                                        border: OutlineInputBorder(),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('Annuler'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      final nom = nomController.text.trim();
+                                      final quantite =
+                                          int.tryParse(
+                                            quantiteController.text,
+                                          ) ??
+                                          1;
+                                      if (nom.isNotEmpty) {
+                                        setState(
+                                          () => save.fioles.addFiole(
+                                            nom,
+                                            quantite,
+                                          ),
+                                        );
+                                        widget.db.updateData();
+                                      }
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text('Ajouter'),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
+                        : null,
+                    icon: const Icon(Icons.add),
+                    label: Text(
+                      save.fioles.getTotalQuantity() < save.fioles.capaciteMax
+                          ? 'Ajouter une fiole'
+                          : 'Fioles pleines',
+                    ),
                   ),
                 ],
               ),

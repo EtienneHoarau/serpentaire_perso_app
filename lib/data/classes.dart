@@ -206,3 +206,118 @@ class Poches {
     );
   }
 }
+
+
+class PocheAHerbe {
+  List<Map<String, int>> herbes;
+  int capaciteMax;
+
+  PocheAHerbe({
+    List<Map<String, int>>? herbes,
+    this.capaciteMax = 10,
+  }) : herbes = herbes ?? [];
+
+  bool addHerbe(String nom, int quantite) {
+    if (getTotalQuantity() + quantite <= capaciteMax) {
+      final existant = herbes.indexWhere((h) => h.containsKey(nom));
+      if (existant != -1) {
+        herbes[existant][nom] = (herbes[existant][nom] ?? 0) + quantite;
+      } else {
+        herbes.add({nom: quantite});
+      }
+      return true;
+    }
+    return false;
+  }
+
+  void removeHerbe(String nom) =>
+      herbes.removeWhere((h) => h.containsKey(nom));
+
+  void updateQuantite(String nom, int quantite) {
+    final index = herbes.indexWhere((h) => h.containsKey(nom));
+    if (index != -1) {
+      if (quantite <= 0) {
+        herbes.removeAt(index);
+      } else {
+        herbes[index][nom] = quantite;
+      }
+    }
+  }
+
+  int getTotalQuantity() => herbes.fold(0, (total, h) => total + h.values.first);
+
+  int getQuantite(String nom) {
+    final herbe = herbes.firstWhere((h) => h.containsKey(nom), orElse: () => {});
+    return herbe[nom] ?? 0;
+  }
+
+  Map<String, dynamic> toMap() => {
+        'herbes': herbes.map((h) => h.map((k, v) => MapEntry(k, v))).toList(),
+        'capaciteMax': capaciteMax,
+      };
+
+  factory PocheAHerbe.fromMap(Map<String, dynamic> map) {
+    final raw = map['herbes'] as List? ?? [];
+    return PocheAHerbe(
+      capaciteMax: map['capaciteMax'] ?? 10,
+      herbes: raw.map((e) => Map<String, int>.from(e as Map)).toList(),
+    );
+  }
+}
+
+class Fioles {
+  List<Map<String, int>> fioles;
+  int capaciteMax;
+
+  Fioles({
+    List<Map<String, int>>? fioles,
+    this.capaciteMax = 6,
+  }) : fioles = fioles ?? [];
+
+  bool addFiole(String nom, int quantite) {
+    if (getTotalQuantity() + quantite <= capaciteMax) {
+      final existant = fioles.indexWhere((f) => f.containsKey(nom));
+      if (existant != -1) {
+        fioles[existant][nom] = (fioles[existant][nom] ?? 0) + quantite;
+      } else {
+        fioles.add({nom: quantite});
+      }
+      return true;
+    }
+    return false;
+  }
+
+  void removeFiole(String nom) =>
+      fioles.removeWhere((f) => f.containsKey(nom));
+
+  void updateQuantite(String nom, int quantite) {
+    final index = fioles.indexWhere((f) => f.containsKey(nom));
+    if (index != -1) {
+      if (quantite <= 0) {
+        fioles.removeAt(index);
+      } else {
+        fioles[index][nom] = quantite;
+      }
+    }
+  }
+
+  int getTotalQuantity() => fioles.fold(0, (total, f) => total + f.values.first);
+
+  int getQuantite(String nom) {
+    final fiole = fioles.firstWhere((f) => f.containsKey(nom), orElse: () => {});
+    return fiole[nom] ?? 0;
+  }
+
+  Map<String, dynamic> toMap() => {
+        'fioles': fioles.map((f) => f.map((k, v) => MapEntry(k, v))).toList(),
+        'capaciteMax': capaciteMax,
+      };
+
+  factory Fioles.fromMap(Map<String, dynamic> map) {
+    final raw = map['fioles'] as List? ?? [];
+    return Fioles(
+      capaciteMax: map['capaciteMax'] ?? 6,
+      fioles: raw.map((e) => Map<String, int>.from(e as Map)).toList(),
+    );
+  }
+}

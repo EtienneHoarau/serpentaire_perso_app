@@ -24,11 +24,13 @@ class Save {
   Consommables consommables;
   Besace besace;
   Poches poches;
+  PocheAHerbe pocheAHerbe;
+  Fioles fioles;
 
   Save()
     : id = idCounter++,
       name = 'Save ${idCounter - 1}',
-      lastChapiter =0,
+      lastChapiter = 0,
       isFavorite = false,
       pointsSupplementaires = PointsSupplementaires(pointsDestin: 2),
       habilite = Capacite(),
@@ -43,13 +45,15 @@ class Save {
       manipulation = Talent(),
       consommables = Consommables(),
       besace = Besace(),
-      poches = Poches();
+      poches = Poches(),
+      pocheAHerbe = PocheAHerbe(),
+      fioles = Fioles();
 
   Map<String, dynamic> toMap() => {
     'id': id,
     'name': name,
     'isFavorite': isFavorite,
-    'lastChapiter':lastChapiter,
+    'lastChapiter': lastChapiter,
     'pointsSupplementaires': pointsSupplementaires.toMap(),
     'habilite': habilite.toMap(),
     'force': force.toMap(),
@@ -64,6 +68,8 @@ class Save {
     'consommables': consommables.toMap(),
     'besace': besace.toMap(),
     'poches': poches.toMap(),
+    'pocheAHerbe': pocheAHerbe.toMap(),
+    'fioles': fioles.toMap(),
   };
 
   factory Save.fromMap(Map<String, dynamic> map) {
@@ -75,63 +81,41 @@ class Save {
     s.pointsSupplementaires = PointsSupplementaires.fromMap(
       Map<String, dynamic>.from(map['pointsSupplementaires'] ?? {}),
     );
-    s.habilite = Capacite.fromMap(
-      Map<String, dynamic>.from(map['habilite'] ?? {}),
-    );
+    s.habilite = Capacite.fromMap(Map<String, dynamic>.from(map['habilite'] ?? {}));
     s.force = Capacite.fromMap(Map<String, dynamic>.from(map['force'] ?? {}));
-    s.vigueur = Capacite.fromMap(
-      Map<String, dynamic>.from(map['vigueur'] ?? {}),
-    );
-    s.discretion = Capacite.fromMap(
-      Map<String, dynamic>.from(map['discretion'] ?? {}),
-    );
+    s.vigueur = Capacite.fromMap(Map<String, dynamic>.from(map['vigueur'] ?? {}));
+    s.discretion = Capacite.fromMap(Map<String, dynamic>.from(map['discretion'] ?? {}));
     s.savoir = Talent.fromMap(Map<String, dynamic>.from(map['savoir'] ?? {}));
-    s.equitation = Talent.fromMap(
-      Map<String, dynamic>.from(map['equitation'] ?? {}),
-    );
+    s.equitation = Talent.fromMap(Map<String, dynamic>.from(map['equitation'] ?? {}));
     s.tir = Talent.fromMap(Map<String, dynamic>.from(map['tir'] ?? {}));
-    s.crochetage = Talent.fromMap(
-      Map<String, dynamic>.from(map['crochetage'] ?? {}),
-    );
+    s.crochetage = Talent.fromMap(Map<String, dynamic>.from(map['crochetage'] ?? {}));
     s.melee = Talent.fromMap(Map<String, dynamic>.from(map['melee'] ?? {}));
-    s.manipulation = Talent.fromMap(
-      Map<String, dynamic>.from(map['manipulation'] ?? {}),
-    );
-    s.consommables = Consommables.fromMap(
-      Map<String, dynamic>.from(map['consommables'] ?? {}),
-    );
+    s.manipulation = Talent.fromMap(Map<String, dynamic>.from(map['manipulation'] ?? {}));
+    s.consommables = Consommables.fromMap(Map<String, dynamic>.from(map['consommables'] ?? {}));
     s.besace = Besace.fromMap(Map<String, dynamic>.from(map['besace'] ?? {}));
     s.poches = Poches.fromMap(Map<String, dynamic>.from(map['poches'] ?? {}));
+    s.pocheAHerbe = PocheAHerbe.fromMap(Map<String, dynamic>.from(map['pocheAHerbe'] ?? {}));
+    s.fioles = Fioles.fromMap(Map<String, dynamic>.from(map['fioles'] ?? {}));
     return s;
   }
 
   Capacite getCapacite(NomCapacite nom) {
     switch (nom) {
-      case NomCapacite.habilite:
-        return habilite;
-      case NomCapacite.force:
-        return force;
-      case NomCapacite.vigueur:
-        return vigueur;
-      case NomCapacite.discretion:
-        return discretion;
+      case NomCapacite.habilite: return habilite;
+      case NomCapacite.force: return force;
+      case NomCapacite.vigueur: return vigueur;
+      case NomCapacite.discretion: return discretion;
     }
   }
 
   Talent getTalent(NomTalent nom) {
     switch (nom) {
-      case NomTalent.savoir:
-        return savoir;
-      case NomTalent.equitation:
-        return equitation;
-      case NomTalent.tir:
-        return tir;
-      case NomTalent.crochetage:
-        return crochetage;
-      case NomTalent.melee:
-        return melee;
-      case NomTalent.manipulation:
-        return manipulation;
+      case NomTalent.savoir: return savoir;
+      case NomTalent.equitation: return equitation;
+      case NomTalent.tir: return tir;
+      case NomTalent.crochetage: return crochetage;
+      case NomTalent.melee: return melee;
+      case NomTalent.manipulation: return manipulation;
     }
   }
 }
@@ -145,36 +129,27 @@ class SavesDatabase {
   }
 
   void loadData() {
-  final raw = _mybox.get('MY_DATA');
-  if (raw == null) {
-    mySaves = [];
-    return;
-  }
-  mySaves = (raw as List)
-      .map((e) => Save.fromMap(Map<String, dynamic>.from(e as Map)))
-      .toList();
+    final raw = _mybox.get('MY_DATA');
+    if (raw == null) {
+      mySaves = [];
+      return;
+    }
+    mySaves = (raw as List)
+        .map((e) => Save.fromMap(Map<String, dynamic>.from(e as Map)))
+        .toList();
 
-  // On recalibre le compteur pour éviter les doublons après redémarrage
-  if (mySaves.isNotEmpty) {
-    // On cherche l'ID le plus grand et on ajoute 1
-    Save.idCounter = mySaves.map((s) => s.id).reduce((a, b) => a > b ? a : b) + 1;
+    if (mySaves.isNotEmpty) {
+      Save.idCounter = mySaves.map((s) => s.id).reduce((a, b) => a > b ? a : b) + 1;
+    }
   }
-}
 
   void setFavorite(Save targetSave) {
     for (var s in mySaves) {
-      if (s.id == targetSave.id) {
-        // On inverse l'état actuel (permet de décocher)
-        s.isFavorite = !s.isFavorite;
-      } else {
-        // Toutes les autres repassent à false
-        s.isFavorite = false;
-      }
+      s.isFavorite = s.id == targetSave.id ? !s.isFavorite : false;
     }
-    updateData(); // Sauvegarde immédiate dans Hive
+    updateData();
   }
 
-  /// Récupère la save favorite s'il y en a une
   Save? get favoriteSave {
     try {
       return mySaves.firstWhere((s) => s.isFavorite);
